@@ -64,51 +64,51 @@ const PostPage = () => {
   if (!postInfo) return '';
 
   return (
-    <div className='xl:p-10 sm:p-5'>
+    <div className='xl:p-10 p-5'>
         <div className='flex justify-center overflow-hidden w-full xl:h-screen md:h-96'>
             <img src={'http://localhost:8001/'+postInfo.cover} alt={postInfo.title} 
                 className='h-full w-full object-cover'></img>
         </div>
-        <div className='-translate-y-20 bg-black xl:mx-80 sm:mx-20 z-10 tracking-wider rounded-2xl text-center'>
-            <div className='xl:px-40 xl:py-20 sm:px-20 sm:py-10 space-y-5'>
-               <h1 className='xl:text-4xl lg:text-2xl sm:text-lg text-white font-semibold text-center '>{postInfo.title}</h1>
-               <p className='text-white xl:text-xl lg:text-lg sm:text-md'>Author: @{postInfo.author.username}</p>
-               <p className='text-neutral-400 xl:text-xl lg:text-lg sm:text-md'>Posted at: {formatISO9075(new Date(postInfo.createdAt))}</p>
+        <div className='-translate-y-20 bg-black lg:mx-40 mx-10 sm:mx-20 z-10 tracking-wider rounded-xl text-center'>
+            <div className='sm:px-20 sm:py-10 px-10 py-5 space-y-5'>
+               <h1 className='lg:text-xl sm:text-md text-sm text-white font-semibold text-center '>{postInfo.title}</h1>
+               <p className='text-white lg:text-lg text-sm'>Author: @{postInfo.author.username}</p>
+               <p className='text-neutral-400 lg:text-sm text-sm'>Posted at: {formatISO9075(new Date(postInfo.createdAt))}</p>
             </div>  
         </div>
 
         {userInfo.id === postInfo.author._id && (
-            <div className='xl:text-3xl sm:text-2xl text-dark-lavender px-40 py-5'>
+            <div className='lg:text-lg text-sm sm-text-md text-dark-lavender px-40 py-5'>
                 <Link to={`/edit/${postInfo._id}`} className='flex'>
                    <FaPencilAlt className="mr-2" /> Edit Post
                 </Link>
             </div>
         )}
         
-        <div className='xl:px-40 lg:px-20 sm:px-10'>
+        <div className='xl:px-40 px-10 lg:px-20'>
            <div>
-              <p className='mb-8 xl:text-2xl sm:text-xl' 
+              <p className='mb-8 text-sm lg:text-lg sm:text-md tracking-wide' 
               dangerouslySetInnerHTML={{__html:postInfo.content}}></p> 
            </div>
 
            <div className='flex space-x-10'>
               <div className='likes'>
                  <div className='mr-4 cursor-pointer' onClick={handleLike}> 
-                    {isLiked ? <FaHeart className='text-red-500 text-4xl' /> : <FaRegHeart className='text-4xl' />}
+                    {isLiked ? <FaHeart className='text-red-500 text-sm lg:text-xl' /> : <FaRegHeart className='text-sm lg:text-xl' />}
                  </div> 
-                 <div onClick={() => setShowLikes(true)} className='cursor-pointer text-xl'>
+                 <div onClick={() => setShowLikes(true)} className='cursor-pointer text-sm lg:text-md'>
                     {postInfo.likes.length} {postInfo.likes.length === 1 ? 'Like' : 'Likes'}
                  </div>
                  {showLikes && (
                      <div className='fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50'>
                        <div className='relative bg-white p-10 rounded-lg max-h-96 overflow-y-auto'>
-                       <button onClick={() => setShowLikes(false)} className='absolute top-3 right-3 text-black'>
+                       <button onClick={() => setShowLikes(false)} className='absolute top-3 right-3 text-black text-sm'>
                           <FaTimes />
                        </button>
-                         <h2 className='text-2xl mb-4 font-semibold'>Liked by:</h2>
+                         <h2 className='text-sm lg:text-lg mb-4 font-semibold'>Liked by:</h2>
                          <ul>
                            {postInfo.likes.map((like, index) => (
-                             <li key={like._id || index} className='text-xl mb-2 border-b-2 border-neutral-300 pb-3'>{like.username}</li>
+                             <li key={like._id || index} className='text-sm lg:text-md mb-2 border-b-2 border-neutral-300 pb-3'>{like.username}</li>
                            ))}
                          </ul>
                        </div>
@@ -117,10 +117,10 @@ const PostPage = () => {
               </div>
 
               <div className='comments'>
-                <div className='text-4xl'>
+                <div className='text-sm lg:text-xl'>
                    <FaRegComment />
                 </div>
-                <div onClick={() => setShowComments(true)} className='cursor-pointer text-xl'>
+                <div onClick={() => setShowComments(true)} className='cursor-pointer text-sm lg:text-md'>
                    {postInfo.comments.length} {postInfo.comments.length === 1 ? 'Comment' : 'Comments'}
                 </div>
                 {showComments && postInfo.comments && (
@@ -129,12 +129,12 @@ const PostPage = () => {
                      <button onClick={() => setShowComments(false)} className='absolute top-3 right-3'>
                         <FaTimes />
                      </button>
-                       <h2 className='text-2xl mb-4 font-semibold'>Comments:</h2>
+                       <h2 className='text-sm lg:text-lg mb-4 font-semibold'>Comments:</h2>
                          <ul>
                            {postInfo.comments.map(comment => (
                              <li key={comment._id} className='mb-4 border-b-2 border-neutral-300 pb-3'>
-                               <p className='text-xl font-semibold'>{comment.user.username}</p>
-                               <p className='text-xl ml-5'>{comment.comment}</p>
+                               <p className='text-sm lg:text-md font-semibold'>{comment.user.username}</p>
+                               <p className='text-sm lg:text-md ml-5'>{comment.comment}</p>
                              </li>
                            ))}
                          </ul>
@@ -142,10 +142,10 @@ const PostPage = () => {
                          type='text'
                          value={newComment}
                          onChange={e => setNewComment(e.target.value)}
-                         className='text-lg border p-2 w-full mb-4'
+                         className='text-sm lg:text-md border p-2 w-full mb-4'
                          placeholder='Add a comment'
                        />
-                       <button onClick={handleAddComment} className='bg-blue-500 text-white px-4 py-2 rounded'>Comment</button>
+                       <button onClick={handleAddComment} className='text-sm lg:text-md bg-blue-500 text-white px-4 py-2 rounded'>Comment</button>
                      </div>
                    </div>
                  )}

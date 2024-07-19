@@ -61,7 +61,7 @@ const EditPost = () => {
             placeholder='Title' 
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className='w-full border-2 border-gray-300 rounded-lg p-2 text-xl focus:outline-none focus:border-black' 
+            className='w-full border-2 border-gray-300 rounded-lg p-2 text-sm lg:text-md focus:outline-none focus:border-black' 
           />
         </div>
         <div>
@@ -78,14 +78,14 @@ const EditPost = () => {
           <button 
             type='submit' 
             onClick={updatePost}
-            className='bg-lavender text-white rounded-lg py-2 px-2 text-xl font-semibold hover:bg-dark-lavender transition-colors duration-300'>
+            className='bg-lavender text-white rounded-lg py-2 px-2 text-sm lg:text-md font-semibold hover:bg-dark-lavender transition-colors duration-300'>
             Update
           </button>
 
           <button 
             type='submit' 
             onClick={deletePost}
-            className='bg-lavender text-white rounded-lg py-2 px-2 text-xl font-semibold hover:bg-dark-lavender transition-colors duration-300'>
+            className='bg-lavender text-white rounded-lg py-2 px-2 text-sm lg:text-md font-semibold hover:bg-dark-lavender transition-colors duration-300'>
             Delete
           </button>
         </div>

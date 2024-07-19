@@ -42,9 +42,9 @@ const Header = () => {
 
   return (
     <>
-       <header className='flex justify-between xl:text-2xl sm:text-xl p-10 my-auto'>
-            <Link to="/" className='font-bold xl:text-4xl sm:text-3xl'>Insightful Ink</Link>
-            <nav className='flex space-x-8 font-semibold'>
+       <header className='flex justify-between text-sm lg:text-lg p-5 lg:p-10 my-auto'>
+            <Link to="/" className='font-bold  text-xl lg:text-2xl '>Insightful Ink</Link>
+            <nav className='flex items-center lg:space-x-8 space-x-4 font-semibold'>
             {username && (
                 <>
                   <Link to="/create">Create new post</Link>
