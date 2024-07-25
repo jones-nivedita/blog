@@ -61,6 +61,55 @@ app.get('/profile', (req, res) => {
 });
 
 
+app.get('/users/:id', (req, res) => {
+    const { id } = req.params;
+    UserModel.findById(id)
+      .then(user => {
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        PostModel.find({ author: id })
+          .populate('author', ['username']) 
+          .then(posts => res.json({ user, posts }))
+          .catch(err => res.status(500).json({ message: 'Error fetching posts', error: err }));
+      })
+      .catch(err => res.status(500).json({ message: 'Error fetching user', error: err }));
+  });
+
+
+  app.put('/users/:id', uploadMiddleware.single('file'), (req, res) => {
+    const { id } = req.params;
+    const { username } = req.body;
+    const  file  = req.file;
+    let newPath = null;
+    
+
+    if (file) {
+      const { originalname, path } = file;
+      const parts = originalname.split('.');
+      const ext = parts[parts.length - 1];
+      newPath = path+'.'+ext;
+      fs.renameSync(path, newPath);
+      console.log('File saved to:', newPath);
+    }
+
+    const {token} = req.cookies;
+    jwt.verify(token, secret, {}, async (err,info) => {
+       if (err) throw err;
+       const updateFields = { username };
+       if (newPath) {
+         updateFields.picture = newPath;
+       }
+  
+    UserModel.findByIdAndUpdate(id, updateFields, { new: true })
+      .exec()
+      .then(user => {
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json(user);
+      })
+      .catch(err => res.status(500).json({ message: 'Error updating profile', error: err }));
+  });
+});
+
+
 app.post('/logout', (req,res) => {
   res.cookie('token', '').json('ok');
 });
@@ -205,7 +254,8 @@ app.post('/posts/:id/comments', (req, res) => {
         .then(updatedPost => {
           return PostModel.findById(updatedPost._id)
              .populate('comments.user', ['username'])
-             .populate('author', ['username']);
+             .populate('author', ['username'])
+             .populate('likes', ['username'])
         })
         .then(populatedPost => res.json(populatedPost))
           .catch(error => res.status(500).json({ error: 'Internal Server Error' }));
@@ -225,6 +275,38 @@ app.delete('/posts/:id', (req, res) => {
           .catch(error => res.status(500).json({ error: 'Internal Server Error' }));
       })
   });
+
+
+app.delete('/posts/:postId/comments/:commentId', (req, res) => {
+  const { postId, commentId } = req.params;
+  PostModel.findById(postId)
+    .then(post => {
+      if (!post) {
+        return res.status(404).json({ message: 'Post not found' });
+      }
+
+      const commentIndex = post.comments.findIndex(comment => comment._id.toString() === commentId);
+      if (commentIndex === -1) {
+        return res.status(404).json({ message: 'Comment not found' });
+      }
+
+      post.comments.splice(commentIndex, 1);
+
+      return post.save();
+    })
+    .then(updatedPost => {
+      return PostModel.findById(updatedPost._id)
+        .populate('comments.user', ['username']) 
+        .populate('author', ['username'])
+        .populate('likes', ['username'])
+    })
+    .then(populatedPost => res.status(200).json(populatedPost))
+    .catch(err => {
+      console.log('Error deleting comment:', err);
+      res.status(500).json({ message: 'Error deleting comment' });
+    });
+});
+
 
 
 app.listen(8001, ()=> {

@@ -34,7 +34,7 @@ const Login = () => {
       <div className='shadow-lg p-10'>
         <h2 className='text-center text-sm lg:text-xl font-semibold'>Login</h2>
         <form onSubmit={handleSubmit}>
-          <div className='flex flex-col sm:flex-row text-sm lg:text-md mt-6 space-y-4 sm:space-y-0 sm:space-x-4'>
+          <div className='flex flex-col sm:flex-row text-sm lg:text-md mt-6 space-y-4 sm:space-y-0 sm:space-x-4 justify-between'>
              <label htmlFor='username' className='sm:flex-shrink-0'>Username:</label>
              <input type='text' 
                     id='username' 
@@ -43,7 +43,7 @@ const Login = () => {
                     onChange={(e)=> setUsername(e.target.value)} 
                     className='border-neutral-200 border-2 rounded p-1'></input>
           </div>
-          <div className='flex flex-col sm:flex-row text-sm lg:text-md mt-6 space-y-4 sm:space-y-0 sm:space-x-4'>
+          <div className='flex flex-col sm:flex-row text-sm lg:text-md mt-6 space-y-4 sm:space-y-0 sm:space-x-4 justify-between'>
              <label htmlFor='password' className='sm:flex-shrink-0'>Password:</label>
              <input type='password' 
                     id='password' 

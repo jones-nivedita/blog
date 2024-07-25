@@ -7,6 +7,7 @@ import CreatePost from './pages/CreatePost';
 import Layout from './pages/Layout';
 import PostPage from './pages/PostPage';
 import EditPost from './pages/EditPost';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
               <Route path="/create" element={<CreatePost/>} />
               <Route path="/posts/:id" element={<PostPage />} />
               <Route path="/edit/:id" element={<EditPost/>} />
+              <Route path="/profile/:id" element={<Profile />} />
            </Route>
          </Routes>
     </UserContextProvider>

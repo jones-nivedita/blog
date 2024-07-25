@@ -5,7 +5,8 @@ import {formatISO9075} from "date-fns";
 import {UserContext} from "../components/UserContext";
 import {Link} from 'react-router-dom';
 import axios from 'axios';
-import { FaPencilAlt, FaHeart, FaRegHeart, FaTimes, FaRegComment } from 'react-icons/fa';
+import { FaPencilAlt, FaHeart, FaRegHeart, FaTimes, FaRegComment, FaTrash } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const PostPage = () => {
 
@@ -16,23 +17,21 @@ const PostPage = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios.get(`http://localhost:8001/posts/${id}`)
     .then(response => {
       setPostInfo(response.data);
-      setIsLiked(response.data.likes.some(like => like._id === userInfo.id));
-      console.log('Initial:',isLiked);
-      console.log('UserInfo:',userInfo);
+      setIsLiked(response.data.likes.some(like => like._id === userInfo?.id));
     })
     .catch(err => console.log('Error loading post:', err));
-  },)
+  }, [])
 
   const handleLike = () => {
     console.log('User Info:',userInfo);
-    if (!userInfo || !userInfo.id) {
-      alert('Please log in to Like.');
-      console.log('Please log in to Like.');
+    if (!userInfo || !userInfo?.id) {
+      navigate('/login');
       return;
     }
     axios.put(`http://localhost:8001/posts/${id}/like`, {}, { 
@@ -40,14 +39,14 @@ const PostPage = () => {
     })
     .then(response => {
       setPostInfo(response.data);
-      setIsLiked(response.data.likes.some(like => like._id === userInfo.id));
+      setIsLiked(response.data.likes.some(like => like._id === userInfo?.id));
       console.log('Toggle:',isLiked);
     })
     .catch(err => console.log('Error loading post:', err));
   };
 
   const handleAddComment = () => {
-    if (!userInfo || !userInfo.id) {
+    if (!userInfo || !userInfo?.id) {
       alert('Please log in to add a comment.');
       return;
     }
@@ -61,6 +60,14 @@ const PostPage = () => {
       .catch(err => console.log('Error adding comment:', err));
   };
 
+  const handleDeleteComment = (commentId) => {
+    axios.delete(`http://localhost:8001/posts/${id}/comments/${commentId}`, { withCredentials: true })
+      .then(response => {
+        setPostInfo(response.data);
+      })
+      .catch(err => console.log('Error deleting comment:', err));
+  };
+
   if (!postInfo) return '';
 
   return (
@@ -71,7 +78,7 @@ const PostPage = () => {
         </div>
         <div className='-translate-y-20 bg-black lg:mx-40 mx-10 sm:mx-20 z-10 tracking-wider rounded-xl text-center'>
             <div className='sm:px-20 sm:py-10 px-10 py-5 space-y-5'>
-               <h1 className='lg:text-xl sm:text-md text-sm text-white font-semibold text-center '>{postInfo.title}</h1>
+               <h1 className='lg:text-2xl sm:text-md text-sm text-white font-semibold text-center '>{postInfo.title}</h1>
                <p className='text-white lg:text-lg text-sm'>Author: @{postInfo.author.username}</p>
                <p className='text-neutral-400 lg:text-sm text-sm'>Posted at: {formatISO9075(new Date(postInfo.createdAt))}</p>
             </div>  
@@ -94,7 +101,7 @@ const PostPage = () => {
            <div className='flex space-x-10'>
               <div className='likes'>
                  <div className='mr-4 cursor-pointer' onClick={handleLike}> 
-                    {isLiked ? <FaHeart className='text-red-500 text-sm lg:text-xl' /> : <FaRegHeart className='text-sm lg:text-xl' />}
+                    {isLiked ? <FaHeart className='text-red-500 text-sm lg:text-2xl' /> : <FaRegHeart className='text-sm lg:text-2xl' />}
                  </div> 
                  <div onClick={() => setShowLikes(true)} className='cursor-pointer text-sm lg:text-md'>
                     {postInfo.likes.length} {postInfo.likes.length === 1 ? 'Like' : 'Likes'}
@@ -117,7 +124,7 @@ const PostPage = () => {
               </div>
 
               <div className='comments'>
-                <div className='text-sm lg:text-xl'>
+                <div className='text-sm lg:text-2xl'>
                    <FaRegComment />
                 </div>
                 <div onClick={() => setShowComments(true)} className='cursor-pointer text-sm lg:text-md'>
@@ -125,16 +132,25 @@ const PostPage = () => {
                 </div>
                 {showComments && postInfo.comments && (
                    <div className='fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50'>
-                     <div className='relative bg-white p-10 rounded-lg max-h-96 overflow-y-auto'>
+                     <div className='relative bg-white p-10 rounded-lg max-h-96 max-w-xl overflow-y-auto'>
                      <button onClick={() => setShowComments(false)} className='absolute top-3 right-3'>
                         <FaTimes />
                      </button>
                        <h2 className='text-sm lg:text-lg mb-4 font-semibold'>Comments:</h2>
                          <ul>
                            {postInfo.comments.map(comment => (
-                             <li key={comment._id} className='mb-4 border-b-2 border-neutral-300 pb-3'>
-                               <p className='text-sm lg:text-md font-semibold'>{comment.user.username}</p>
-                               <p className='text-sm lg:text-md ml-5'>{comment.comment}</p>
+                             <li key={comment._id} className='mb-4 border-b-2 border-neutral-300 pb-3 flex justify-between'>
+                              <div className='flex-1'>
+                                 <p className='text-sm lg:text-md font-semibold'>@{comment.user.username}</p>
+                                 <p className='text-sm lg:text-md ml-5 break-words'>{comment.comment}</p>
+                               </div>
+                               <div>
+                               {userInfo?.username === comment.user.username && (
+                                  <button onClick={() => handleDeleteComment(comment._id)} className='text-red-500'>
+                                    <FaTrash />
+                                  </button>
+                                )}
+                                </div>
                              </li>
                            ))}
                          </ul>
@@ -145,7 +161,7 @@ const PostPage = () => {
                          className='text-sm lg:text-md border p-2 w-full mb-4'
                          placeholder='Add a comment'
                        />
-                       <button onClick={handleAddComment} className='text-sm lg:text-md bg-blue-500 text-white px-4 py-2 rounded'>Comment</button>
+                       <button onClick={handleAddComment} className='text-sm lg:text-md bg-lavender hover:bg-dark-lavender text-white px-4 py-2 rounded'>Comment</button>
                      </div>
                    </div>
                  )}

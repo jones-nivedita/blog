@@ -20,7 +20,7 @@ const Home = () => {
         {/* Blogs */}
         <div className='flex justify-center items-center p-5'>
           <div className='w-full'>
-            <div className='grid xl:grid-cols-2 grid-cols-1 lg:gap-x-10 lg:gap-y-5 gap-5'>
+            <div className='grid xl:grid-cols-2 grid-cols-1 lg:gap-x-10 lg:gap-y-5 gap-10'>
               {posts.length > 0 && posts.map((p, id) => ( 
               <div key={id} className='post flex flex-row space-x-2 lg:space-x-3'>
                 <div className='group relative h-44 md:h-48 lg:h-60 w-2/5 cursor-pointer'>

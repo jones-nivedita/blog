@@ -39,6 +39,7 @@ const Header = () => {
     }
 
     const username = userInfo?.username;
+    const userId = userInfo?.id;
 
   return (
     <>
@@ -48,7 +49,8 @@ const Header = () => {
             {username && (
                 <>
                   <Link to="/create">Create new post</Link>
-                  <a onClick={logout} className='hover:cursor-pointer'>Logout ({username})</a>
+                  <Link to={`/profile/${userId}`}>{username}</Link>
+                  <a onClick={logout} className='hover:cursor-pointer'>Logout</a>
                 </>
               )}
               {!username && (
