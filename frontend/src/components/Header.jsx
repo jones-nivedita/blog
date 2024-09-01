@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, unstable_useViewTransitionState, useNavigate } from 'react-router-dom';
 import { useEffect, useContext } from 'react';
 import axios from 'axios';
 import { UserContext } from './UserContext';
-import { Navigate } from 'react-router-dom';
+import { FaPlus } from "react-icons/fa6";
+import { FiLogOut } from "react-icons/fi";
 
 const Header = () => {
 
@@ -43,14 +44,14 @@ const Header = () => {
 
   return (
     <>
-       <header className='flex justify-between text-sm lg:text-lg p-5 lg:p-10 my-auto'>
+       <header className='flex justify-between text-sm lg:text-lg p-5 lg:p-10 my-auto shadow-md'>
             <Link to="/" className='font-bold  text-xl lg:text-2xl '>Insightful Ink</Link>
             <nav className='flex items-center lg:space-x-8 space-x-4 font-semibold'>
             {username && (
                 <>
-                  <Link to="/create">Create new post</Link>
+                  <Link to="/create"><FaPlus/></Link>
                   <Link to={`/profile/${userId}`}>{username}</Link>
-                  <a onClick={logout} className='hover:cursor-pointer'>Logout</a>
+                  <a onClick={logout} className='hover:cursor-pointer'><FiLogOut/></a>
                 </>
               )}
               {!username && (

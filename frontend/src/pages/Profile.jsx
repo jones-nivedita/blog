@@ -16,7 +16,6 @@ const Profile = () => {
   const [newUsername, setNewUsername] = useState('');
   const [profilePicture, setProfilePicture] = useState('');
   const [files, setFiles] = useState('');
-  const [removePicture, setRemovePicture] = useState(false);
 
 
   useEffect(() => {
@@ -50,7 +49,6 @@ const Profile = () => {
       setProfile(user);
       setProfilePicture(user.picture || 'uploads/user.png');
       setIsEditing(false);
-      setRemovePicture(false);
     })
     .catch(error => {
       console.log('Error updating profile:', error);
@@ -59,8 +57,10 @@ const Profile = () => {
   
 
   if (!profile) {
-    return <div>Loading...</div>; // Loading state while profile is being fetched
+    return <div>Loading...</div>; 
   }
+
+  console.log(profilePicture);
 
   return (
     <div className='relative p-10'>
@@ -70,7 +70,7 @@ const Profile = () => {
             </button>
           )}
 
-{isEditing && (
+      {isEditing && (
         <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
           <div className='relative bg-white p-8 rounded shadow-lg w-80'>
           <button onClick={() => setIsEditing(false)} className='absolute top-3 right-3'>
@@ -109,7 +109,8 @@ const Profile = () => {
       <div className='flex flex-col justify-center items-center space-y-5'>        
          <div className='w-80 h-80 rounded-full border-black border-2 overflow-hidden'>
             <img src={`http://localhost:8001/${profilePicture}`} alt={profile.username}
-                 className='h-full w-full object-cover'></img>
+                 className='h-full w-full object-cover'>
+                 </img>
          </div>
 
 
