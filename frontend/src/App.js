@@ -8,6 +8,8 @@ import Layout from './pages/Layout';
 import PostPage from './pages/PostPage';
 import EditPost from './pages/EditPost';
 import Profile from './pages/Profile';
+import ChatList from './pages/ChatList';
+import Chat from './pages/Chat';
 
 function App() {
   return (
@@ -22,6 +24,7 @@ function App() {
               <Route path="/posts/:id" element={<PostPage />} />
               <Route path="/edit/:id" element={<EditPost/>} />
               <Route path="/profile/:id" element={<Profile />} />
+              <Route path="/chatlist" element={<ChatList/>} />
            </Route>
          </Routes>
     </UserContextProvider>

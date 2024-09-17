@@ -3,9 +3,9 @@ import {Outlet} from "react-router-dom";
 
 const Layout = () => {
   return (
-    <main>
+    <main className=" mt-28 lg:mt-40">
       <Header />
-      <Outlet />
+      <Outlet className='mt-20'/>
     </main>
   )
 }

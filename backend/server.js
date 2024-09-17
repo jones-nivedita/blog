@@ -1,14 +1,18 @@
 const express=require('express')
 const cors = require('cors');
 const mongoose = require('mongoose');
-const UserModel = require('./Models/User')
-const PostModel = require('./Models/Post')
+const User = require('./Models/User')
+const Post = require('./Models/Post')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const uploadMiddleware = multer({ dest: 'uploads/' });
+const Chat = require('./Models/Chat'); 
 const fs = require('fs');
+const http = require('http');
+const socketIo = require('socket.io');
+
 
 const salt = bcrypt.genSaltSync(10);
 const secret = 'asdfe45we45w345wegw345werjktjwertkj';
@@ -16,15 +20,25 @@ const secret = 'asdfe45we45w345wegw345werjktjwertkj';
 mongoose.connect('mongodb://localhost:27017/blog_app')
 
 const app=express();
-app.use(cors({credentials:true,origin:'http://localhost:3000'}));
+app.use(cors({credentials:true, origin:'http://localhost:3000'}));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
+
 
 
 app.post('/register', (req, res) => {
     const {username, password} = req.body;
-    UserModel.create({
+    User.create({
         username,
         password:bcrypt.hashSync(password,salt),
     })
@@ -35,7 +49,7 @@ app.post('/register', (req, res) => {
 
 app.post('/login', async (req, res) => {
     const {username, password} = req.body;
-    const userDoc = await UserModel.findOne({username});
+    const userDoc = await User.findOne({username});
     const passOk = bcrypt.compareSync(password, userDoc.password);
   if (passOk) {
     // logged in
@@ -63,16 +77,22 @@ app.get('/profile', (req, res) => {
 
 app.get('/users/:id', (req, res) => {
     const { id } = req.params;
-    UserModel.findById(id)
+    User.findById(id)
       .then(user => {
         if (!user) return res.status(404).json({ message: 'User not found' });
-        PostModel.find({ author: id })
+        Post.find({ author: id })
           .populate('author', ['username']) 
           .then(posts => res.json({ user, posts }))
           .catch(err => res.status(500).json({ message: 'Error fetching posts', error: err }));
       })
       .catch(err => res.status(500).json({ message: 'Error fetching user', error: err }));
   });
+
+  app.get('/users', (req, res) => {
+    User.find()
+    .then(users => res.json(users))
+    .catch(err => res.status(500).json({ error: "Error loading users" }))
+  })
 
 
   app.put('/users/:id', uploadMiddleware.single('file'), (req, res) => {
@@ -99,7 +119,7 @@ app.get('/users/:id', (req, res) => {
          updateFields.picture = newPath;
        }
   
-    UserModel.findByIdAndUpdate(id, updateFields, { new: true })
+    User.findByIdAndUpdate(id, updateFields, { new: true })
       .exec()
       .then(user => {
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -128,7 +148,7 @@ app.post('/posts', uploadMiddleware.single('file'), (req, res) => {
     if (err) throw err;
     const {title,content} = req.body;
     
-    PostModel.create({
+    Post.create({
       title,
       content,
       cover:newPath,
@@ -143,7 +163,7 @@ app.post('/posts', uploadMiddleware.single('file'), (req, res) => {
 
 
 app.get('/posts', (req,res) => {
-  PostModel.find()
+  Post.find()
     .populate('author', ['username'])
     .sort({ createdAt: -1 })
     .limit(20)
@@ -159,7 +179,7 @@ app.get('/posts', (req,res) => {
 
 app.get('/posts/:id', (req, res) => {
   const {id} = req.params;
-  PostModel.findById(id)
+  Post.findById(id)
   .populate('author', ['username'])
   .populate('likes', ['username'])
   .populate('comments.user', 'username')
@@ -190,7 +210,7 @@ app.put('/posts', uploadMiddleware.single('file'), (req, res) => {
          updateFields.cover = newPath;
        }
 
-       PostModel.findByIdAndUpdate(id, updateFields, { new: true })
+       Post.findByIdAndUpdate(id, updateFields, { new: true })
       .exec()
       .then(updatedPost => {
         if (!updatedPost) {
@@ -211,7 +231,7 @@ app.put('/posts/:id/like', (req, res) => {
   jwt.verify(token, secret, {}, (err, info) => {
     if (err) throw err;
 
-    PostModel.findById(req.params.id)
+    Post.findById(req.params.id)
       .then(post => {
         const userId = info.id;
         const isLiked = post.likes.includes(userId);
@@ -226,7 +246,7 @@ app.put('/posts/:id/like', (req, res) => {
 
         post.save()
         .then(updatedPost => {
-          return PostModel.findById(updatedPost._id)
+          return Post.findById(updatedPost._id)
              .populate('likes', ['username'])
              .populate('author', ['username']);
         })
@@ -244,7 +264,7 @@ app.post('/posts/:id/comments', (req, res) => {
     if (err) throw err;
 
     const { comment } = req.body;
-    PostModel.findById(req.params.id)
+    Post.findById(req.params.id)
       .then(post => {
         post.comments.push({
           user: info.id,
@@ -253,7 +273,7 @@ app.post('/posts/:id/comments', (req, res) => {
 
         post.save()
         .then(updatedPost => {
-          return PostModel.findById(updatedPost._id)
+          return Post.findById(updatedPost._id)
              .populate('comments.user', ['username'])
              .populate('author', ['username'])
              .populate('likes', ['username'])
@@ -271,7 +291,7 @@ app.delete('/posts/:id', (req, res) => {
   jwt.verify(token, secret, {}, (err, info) => {
     if (err) return res.status(401).json('Unauthorized');
 
-        PostModel.findByIdAndDelete(req.params.id)
+        Post.findByIdAndDelete(req.params.id)
           .then(() => res.json('Post deleted'))
           .catch(error => res.status(500).json({ error: 'Internal Server Error' }));
       })
@@ -280,7 +300,7 @@ app.delete('/posts/:id', (req, res) => {
 
 app.delete('/posts/:postId/comments/:commentId', (req, res) => {
   const { postId, commentId } = req.params;
-  PostModel.findById(postId)
+  Post.findById(postId)
     .then(post => {
       if (!post) {
         return res.status(404).json({ message: 'Post not found' });
@@ -296,7 +316,7 @@ app.delete('/posts/:postId/comments/:commentId', (req, res) => {
       return post.save();
     })
     .then(updatedPost => {
-      return PostModel.findById(updatedPost._id)
+      return Post.findById(updatedPost._id)
         .populate('comments.user', ['username']) 
         .populate('author', ['username'])
         .populate('likes', ['username'])
@@ -309,7 +329,92 @@ app.delete('/posts/:postId/comments/:commentId', (req, res) => {
 });
 
 
+app.get('/chats/:id', (req, res) => {
+  const userId = req.params.id;
+  Chat.find({users: userId})
+    .populate('users', 'username picture') 
+    .populate('messages.sender', 'username picture') 
+    .then((chats) => {
+      res.status(200).json(chats);
+    })
+    .catch((error) => {
+      res.status(500).json({ message: 'Error fetching chat list', error });
+    });
+});
 
-app.listen(8001, ()=> {
+
+
+io.on('connection', (socket) => {
+  console.log('New user connected');
+  
+  socket.on('join_chat', async ({ userId, chatId }) => {
+    socket.join(chatId);
+    
+    if (chatId) {
+      const chat = await Chat.findById(chatId).populate('users', ['username']);
+      io.to(chatId).emit('chat_message', chat);
+    }
+  });
+
+  socket.on('chat_message', async ({ chatId, sender, text }) => {
+    try {
+      const chat = await Chat.findById(chatId).populate('users', ['username']);
+      if (!chat) {
+        return socket.emit('error', { message: 'Chat not found' });
+      }
+  
+      const message = {
+        text,
+        sender,
+        timestamp: new Date(),
+      };
+  
+      chat.messages.push(message);
+      await chat.save();
+  
+      io.to(chatId).emit('chat_message', chat);
+    } catch (error) {
+      socket.emit('error', { message: 'Error sending message', error });
+    }
+  });
+
+  socket.on('share_post', async ({ userId, recipientId, postId }) => {
+    try {
+      let chat = await Chat.findOne({ users: { $all: [userId, recipientId] } });
+      
+      if (!chat) {
+        chat = new Chat({ users: [userId, recipientId], messages: [] });
+      }
+  
+      const post = await Post.findById(postId).populate('author', ['username']);
+      if (!post) {
+        socket.emit('error', { message: 'Post not found' });
+        return;
+      }
+  
+      chat.messages.push({
+        sender: userId,
+        post: post._id,  
+        timestamp: Date.now(),
+      });
+  
+      await chat.save();
+  
+      io.to([userId, recipientId]).emit('chat_message', chat);
+  
+    } catch (error) {
+      console.error('Error in share_post socket:', error);
+      socket.emit('error', { message: 'Error sharing post', error });
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
+
+
+
+server.listen(8001, ()=> {
     console.log('Server is running...')
 })

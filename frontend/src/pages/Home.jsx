@@ -41,17 +41,18 @@ const Home = () => {
                    placeholder='Search...'></input>
           </div>
         </div>
+
         {/* Blogs */}
         <div className='flex justify-center items-center p-5'>
           <div className='w-full'>
-            <div className='grid xl:grid-cols-2 grid-cols-1 lg:gap-x-10 lg:gap-y-5 gap-10'>
+            <div className='grid xl:grid-cols-2 grid-cols-1 lg:gap-x-10 lg:gap-y-6 gap-10'>
               {filteredPosts.length > 0 && filteredPosts.map((p, id) => ( 
               <div key={id} className='post flex flex-row space-x-2 lg:space-x-3'>
                 <div className='group relative h-44 md:h-48 lg:h-60 w-2/5 cursor-pointer'>
                    <Link to={`/posts/${p._id}`}>
                       <img src={'http://localhost:8001/'+p.cover}
-                          className='group h-full w-full object-cover shadow-lg' alt={p.title}></img>
-                      <div className='absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration:300'></div>
+                          className='group h-full w-full object-cover shadow-lg rounded-md' alt={p.title}></img>
+                      <div className='absolute inset-0 bg-black/25 opacity-0 rounded-md group-hover:opacity-100 transition-opacity duration:300'></div>
                    </Link>
                 </div>
                    <div className='flex flex-col justify-center w-3/5'>
