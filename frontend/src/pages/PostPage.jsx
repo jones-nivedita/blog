@@ -6,7 +6,6 @@ import {UserContext} from "../components/UserContext";
 import {Link} from 'react-router-dom';
 import axios from 'axios';
 import { FaPencilAlt, FaHeart, FaRegHeart, FaTimes, FaRegComment, FaTrash } from 'react-icons/fa';
-import { BsSend } from "react-icons/bs";
 import { FaShare } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import socket from '../components/socketClient';

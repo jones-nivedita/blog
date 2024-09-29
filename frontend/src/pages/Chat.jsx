@@ -1,4 +1,4 @@
-import React, {useContext, useState, useEffect} from 'react';
+import React, {useContext, useState, useEffect, useRef} from 'react';
 import { UserContext } from '../components/UserContext';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -55,7 +55,7 @@ const Chat = ({chat, chatPartner}) => {
       return (
         <div 
           className={`p-2 rounded-lg ${
-            message.sender === userInfo.id ? 'bg-blue-500 text-white self-end' : 'bg-gray-200 text-black'
+            message.sender === userInfo?.id ? 'bg-dark-lavender text-white self-end' : 'bg-gray-200 text-black'
           }`}
         >
           <p>{message.text}</p>
@@ -73,13 +73,21 @@ const Chat = ({chat, chatPartner}) => {
     event.preventDefault();
     if (message.trim() === '') return;
 
+    const newMessage = {
+      chatId: currentChat._id,
+      sender: userInfo.id,
+      text: message,
+    };
+
     try {
-      socket.emit('chat_message', {
-        chatId: currentChat._id,  
-        sender: userInfo.id,     
-        text: message,           
-      });
-      setMessage('');
+      socket.emit('chat_message', newMessage);
+
+      setCurrentChat((prevChat) => ({
+        ...prevChat,
+        messages: [...prevChat.messages, newMessage], 
+      }));
+
+      setMessage(''); 
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -97,28 +105,37 @@ const Chat = ({chat, chatPartner}) => {
     };
   }, [currentChat._id]);
 
+
   if (!currentChat || !currentChat.messages) return <div>No messages available.</div>;
 
   return (
-    <>
-    <div className="flex flex-col h-full p-4 space-y-2 overflow-y-auto">
-      <div className="flex items-center space-x-3 sticky top-0 bg-lavender rounded p-4 shadow-md">
-        <img 
-        src={chatPartner?.picture
-          ? `http://localhost:8001/${chatPartner.picture}`
-          : 'http://localhost:8001/uploads/user.png'}
-        alt={chatPartner?.username}
-        className="w-12 h-12 rounded-full object-cover"></img>
+    <div className="flex flex-col p-2 h-[calc(100vh-160px)]">
+      {/* Chat Header (fixed at the top) */}
+      <div className="flex items-center space-x-3 mx-1 sticky top-0 bg-lavender rounded p-4 shadow-md z-10">
+        <img
+          src={chatPartner?.picture
+            ? `http://localhost:8001/${chatPartner.picture}`
+            : 'http://localhost:8001/uploads/user.png'}
+          alt={chatPartner?.username}
+          className="w-12 h-12 rounded-full object-cover"
+        />
         <h2 className="text-lg font-semibold">{chatPartner?.username || 'Chat Partner'}</h2>
       </div>
-      {currentChat.messages.map((message) => (
-        <div key={message._id} className={`flex ${message.sender === userInfo.id ? 'justify-end' : 'justify-start'}`}>
-          {renderMessage(message)}
-        </div>
-      ))}
-  </div>
 
-  <form onSubmit={handleSendMessage} className="flex items-center space-x-2 p-4 border-t bg-white sticky bottom-0">
+      {/* Messages Container */}
+      <div className="flex-grow over overflow-y-auto">
+        {currentChat.messages.map((message) => (
+          <div
+            key={message._id}
+            className={`flex p-1 ${message.sender === userInfo?.id ? 'justify-end' : 'justify-start'}`}
+          >
+            {renderMessage(message)}
+          </div>
+        ))}
+      </div>
+
+      {/* Input Area (fixed at the bottom) */}
+      <form onSubmit={handleSendMessage} className="flex items-center space-x-2 p-4 border-t bg-white sticky bottom-0 z-10">
         <input
           type="text"
           value={message}
@@ -126,11 +143,12 @@ const Chat = ({chat, chatPartner}) => {
           placeholder="Type a message..."
           className="flex-grow p-2 border rounded-lg"
         />
-        <button type="submit" >
-           <LuSendHorizonal />
+        <button type="submit">
+          <LuSendHorizonal />
         </button>
       </form>
-  </>
+    </div>
+
   )
 }
 

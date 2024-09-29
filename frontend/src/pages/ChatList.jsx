@@ -46,16 +46,27 @@ const ChatList = () => {
     setSelectedChatPartner(getChatPartner(chat));
   };
 
+  const sortedChats = chats.sort((a, b) => {
+    const lastMessageA = a.messages[a.messages.length - 1];
+    const lastMessageB = b.messages[b.messages.length - 1];
+
+    const timestampA = lastMessageA ? new Date(lastMessageA.createdAt).getTime() : 0;
+    const timestampB = lastMessageB ? new Date(lastMessageB.createdAt).getTime() : 0;
+
+    return timestampB - timestampA; 
+  });
+
   return (
-   <div className='flex'>
-    <div className='w-2/5 border-r-2 border-neutral-500 overflow-y-auto'>
+   <div className='flex h-[calc(100vh-160px)]'>
+    <div className='w-2/5 border-r-2 border-neutral-500 h-[calc(100vh-160px)] overflow-y-auto'>
       <div className="chat-list-container p-5">
         <h2 className="text-2xl font-bold mb-4">Chats</h2>
-           {chats.length === 0 ? (
+        <div className='h-[calc(100vh-160px)] overflow-y-auto'> 
+           {sortedChats.length === 0 ? (
                <p className="text-lg text-gray-500">No chats yet</p>
              ) : (
            <ul className="space-y-4">
-             {chats.map(chat => {
+             {sortedChats.map(chat => {
               const chatPartner = getChatPartner(chat);
               return (
                <li key={chat._id} className="flex items-center space-x-4 bg-white shadow p-3 rounded-lg cursor-pointer" onClick={() => handleChatSelection(chat)}>
@@ -79,6 +90,7 @@ const ChatList = () => {
             })}
            </ul>
              )}
+             </div>
       </div>
     </div>
 
