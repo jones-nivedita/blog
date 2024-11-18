@@ -105,31 +105,6 @@ const Home = () => {
           <div className='w-full'>
             <div className='grid xl:grid-cols-2 grid-cols-1 lg:gap-x-10 lg:gap-y-6 gap-10'>
             {renderedPosts.length > 0 ? renderedPosts : <p>No posts found.</p>}
-              {/*{filteredPosts.length > 0 && filteredPosts.map((p, id) => ( 
-              <div key={id} className='post flex flex-row space-x-2 lg:space-x-3'>
-                <div className='group relative h-44 md:h-48 lg:h-60 w-2/5 cursor-pointer'>
-                   <Link to={`/posts/${p._id}`}>
-                      <img src={'http://localhost:8001/'+p.cover}
-                          className='group h-full w-full object-cover shadow-lg rounded-md' alt={p.title}></img>
-                      <div className='absolute inset-0 bg-black/25 opacity-0 rounded-md group-hover:opacity-100 transition-opacity duration:300'></div>
-                   </Link>
-                </div>
-                   <div className='flex flex-col justify-center w-3/5'>
-                      <Link to={`/posts/${p._id}`}>
-                         <h2 className='lg:text-lg text-sm font-bold overflow-hidden line-clamp-2'>{p.title}</h2>
-                      </Link>
-                      <div className='flex flex-row space-x-6 lg:text-md mt-2 font-semibold text-sm'>
-                        <Link to={`/profile/${p.author._id}`}>
-                           <p className='text-black'>@{p.author.username}</p>
-                        </Link>
-                         
-                         <p className='text-neutral-400'>{formatISO9075(new Date(p.createdAt))}</p>
-                      </div>
-                      <p className='lg:text-md text-sm tracking-wider mt-4 overflow-hidden line-clamp-4'
-                         dangerouslySetInnerHTML={{__html:p.content}}></p>
-                  </div>
-             </div>
-           ))}*/}
            </div>
           </div>
         </div>
