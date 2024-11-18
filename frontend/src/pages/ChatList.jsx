@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../components/UserContext';
 import axios from 'axios';
-import socket from '../components/socketClient';
 import Chat from './Chat';
 
 const ChatList = () => {

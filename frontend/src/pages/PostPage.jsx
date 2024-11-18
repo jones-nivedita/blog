@@ -137,7 +137,7 @@ const PostPage = () => {
             </div>
         )}
         
-        <div className='xl:px-40 px-10 lg:px-20'>
+        <div className='px-10 lg:px-20'>
            <div>
               <p className='mb-8 text-sm lg:text-lg sm:text-md tracking-wide' 
               dangerouslySetInnerHTML={{__html:postInfo.content}}></p> 

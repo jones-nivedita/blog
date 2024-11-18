@@ -43,7 +43,7 @@ const Chat = ({chat, chatPartner}) => {
             <img 
               src={`http://localhost:8001/${post.cover}`} 
               alt={post.title}
-              className="w-24 h-24 object-cover rounded-md"
+              className="w-full h-24 object-cover rounded-md"
             />
             <div>
               <p className="font-semibold overflow-hidden line-clamp-2">{post.title}</p>
@@ -54,7 +54,7 @@ const Chat = ({chat, chatPartner}) => {
     } else if (message.text) {
       return (
         <div 
-          className={`p-2 rounded-lg ${
+          className={`px-2 py-1 rounded-lg ${
             message.sender === userInfo?.id ? 'bg-dark-lavender text-white self-end' : 'bg-gray-200 text-black'
           }`}
         >
@@ -103,7 +103,7 @@ const Chat = ({chat, chatPartner}) => {
     return () => {
       socket.off('chat_message');
     };
-  }, [currentChat._id]);
+  }, [currentChat]);
 
 
   if (!currentChat || !currentChat.messages) return <div>No messages available.</div>;
@@ -123,11 +123,11 @@ const Chat = ({chat, chatPartner}) => {
       </div>
 
       {/* Messages Container */}
-      <div className="flex-grow over overflow-y-auto">
+      <div className="overflow-y-auto">
         {currentChat.messages.map((message) => (
           <div
             key={message._id}
-            className={`flex p-1 ${message.sender === userInfo?.id ? 'justify-end' : 'justify-start'}`}
+            className={`flex mt-2 mb-1 ${message.sender === userInfo?.id ? 'justify-end' : 'justify-start'}`}
           >
             {renderMessage(message)}
           </div>

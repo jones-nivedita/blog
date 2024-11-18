@@ -35,12 +35,11 @@ const io = socketIo(server, {
 
 
 
-
 app.post('/register', (req, res) => {
     const {username, password} = req.body;
     User.create({
         username,
-        password:bcrypt.hashSync(password,salt),
+        password:bcrypt.hashSync(password, salt),
     })
     .then(result => res.json(result))
     .catch(err => res.json(err))
@@ -101,7 +100,6 @@ app.get('/users/:id', (req, res) => {
     const  file  = req.file;
     let newPath = null;
     
-
     if (file) {
       const { originalname, path } = file;
       const parts = originalname.split('.');
@@ -130,7 +128,7 @@ app.get('/users/:id', (req, res) => {
 });
 
 
-app.post('/logout', (req,res) => {
+app.post('/logout', (req, res) => {
   res.cookie('token', '').json('ok');
   //res.clearCookie('token');
 });
@@ -146,7 +144,7 @@ app.post('/posts', uploadMiddleware.single('file'), (req, res) => {
   const {token} = req.cookies;
   jwt.verify(token, secret, {}, (err,info) => {
     if (err) throw err;
-    const {title,content} = req.body;
+    const {title, content} = req.body;
     
     Post.create({
       title,
@@ -341,33 +339,6 @@ app.get('/chats/:id', (req, res) => {
       res.status(500).json({ message: 'Error fetching chat list', error });
     });
 });
-
-/*app.get('/chats/:id', async (req, res) => {
-  const chatId = req.params.id;
-  const skip = parseInt(req.query.skip) || 0; // Number of messages to skip
-  const limit = 10; // Number of messages to return
-
-  try {
-    const chat = await Chat.findById(chatId)
-      .populate('users', 'username picture')
-      .populate({
-        path: 'messages',
-        options: {
-          sort: { timestamp: -1 }, // Sort messages by timestamp in descending order
-          skip: skip,
-          limit: limit,
-        },
-        populate: { path: 'sender', select: 'username picture' } // Populate sender's information
-      });
-
-    if (!chat) return res.status(404).json({ message: 'Chat not found' });
-
-    res.status(200).json(chat.messages);
-  } catch (error) {
-    console.error('Error fetching messages:', error);
-    res.status(500).json({ message: 'Error fetching messages', error });
-  }
-});*/
 
 
 
